@@ -1,10 +1,11 @@
 import os
+from ollama import chat
 from dotenv import load_dotenv
 
 load_dotenv()
 
 #client = OpenAI(
-#    base_url="https://api.groq.com/openai/v1",
+#    base_url="http://localhost:11434/v1",
 #    api_key=os.environ.get("GROQ_API_KEY"),
 #)
 
