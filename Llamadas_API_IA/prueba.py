@@ -21,24 +21,32 @@ while True:
         model="llama3.2:3b",
         messages=[*messages,
                   {'role': 'user', 'content': user_input}],
-        options={'num_predict': 200}
+        options={'num_predict': 200},
+        stream=True
     )
 
-    moderacion_respuesta = moderar(response.message.content, rol="assistant")
+    texto_completo= ""
+    ultimo_chunk = None
+    for chunks in response:
+        print(chunks.message.content, end="", flush=True)
+        texto_completo += chunks.message.content
+        ultimo_chunk = chunks
+    print()
+
+    moderacion_respuesta = moderar(texto_completo, rol="assistant")
     if "unsafe" in moderacion_respuesta.lower():
         print("Hemos bloqueado la respuesta por no ser apropiada")
         continue
 
     messages += [
         {'role': 'user', 'content': user_input},
-        {'role': 'assistant', 'content': response.message.content},
+        {'role': 'assistant', 'content': texto_completo},
     ]
 
-    tokens_entrada = response.get('prompt_eval_count', 0)
-    tokens_salida = response.get('eval_count', 0)
+    tokens_entrada = ultimo_chunk.prompt_eval_count or 0
+    tokens_salida = ultimo_chunk.eval_count or 0
     total = tokens_entrada + tokens_salida
 
-    print(response.message.content + '\n')
-    print(f"Contexto usado: {total}/ 131072 tokens"
+    print(f"Contexto usado: {total}/131072 tokens, "
           f"Entrada: {tokens_entrada}, salida: {tokens_salida}")
-    print("Duracion del procesamiento en ns: ", response["total_duration"])
+    print("Duracion del procesamiento en ns: ", ultimo_chunk.total_duration)
