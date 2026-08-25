@@ -160,12 +160,11 @@ def validate_llm_response(prompt, data_model ,n_rentry=5, model="llama3.2:3b"):
 
         if validation_error:
             if attempt < n_rentry:
-                if attempt < n_rentry:
-                    print(f"retry {attempt} of {n_rentry} failed, trying again...")
-                else:
-                    print(f"Max retries reached. Last error: {validation_error}")
-                    return None, (f"Max retries reached. Last error: {validation_error}"
-                )
+                print(f"retry {attempt} of {n_rentry} failed, trying again...")
+            else:
+                print(f"Max retries reached. Last error: {validation_error}")
+                return None, (f"Max retries reached. Last error: {validation_error}")
+            
             validation_rentry_prompt = create_retry_promt(
                 original_prompt=current_prompt,
                 original_response=response_content,
